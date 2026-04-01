@@ -1,0 +1,1 @@
+pyinstaller -Fw --add-data "./assets;assets" --icon=assets/icon.ico SnapValid.py

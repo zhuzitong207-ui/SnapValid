@@ -1,0 +1,11 @@
+{
+    "name": "SnapValid",
+    "version": "1.0.0",
+    "similarity_threshold": 0.9,
+    "replay_times": 1,
+    "log_path": "./operation_log.txt",
+    "ocr_result_path": "./ocr_result.txt",
+    "compare_result_path": "./compare_result.txt",
+    "script_save_path": "./scripts/",
+    "screenshot_temp_path": "./temp/"
+}
