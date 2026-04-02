@@ -1,0 +1,160 @@
+[
+  {
+    "t": 2.8,
+    "act": "click",
+    "x": 1917,
+    "y": 1053,
+    "btn": "left"
+  },
+  {
+    "t": 5.51,
+    "act": "click",
+    "x": 113,
+    "y": 453,
+    "btn": "left"
+  },
+  {
+    "t": 5.7,
+    "act": "click",
+    "x": 113,
+    "y": 453,
+    "btn": "left"
+  },
+  {
+    "t": 8.56,
+    "act": "click",
+    "x": 724,
+    "y": 533,
+    "btn": "left"
+  },
+  {
+    "t": 20.94,
+    "act": "input",
+    "text": "https://172.26.27.230:10443"
+  },
+  {
+    "t": 20.94,
+    "act": "key",
+    "key": "enter"
+  },
+  {
+    "t": 21.87,
+    "act": "key",
+    "key": "enter"
+  },
+  {
+    "t": 24.76,
+    "act": "click",
+    "x": 986,
+    "y": 431,
+    "btn": "left"
+  },
+  {
+    "t": 30.84,
+    "act": "input",
+    "text": "rayleigh"
+  },
+  {
+    "t": 30.84,
+    "act": "key",
+    "key": "space"
+  },
+  {
+    "t": 32.03,
+    "act": "click",
+    "x": 1318,
+    "y": 501,
+    "btn": "left"
+  },
+  {
+    "t": 32.85,
+    "act": "click",
+    "x": 1012,
+    "y": 503,
+    "btn": "left"
+  },
+  {
+    "t": 40.16,
+    "act": "input",
+    "text": "Silvers$R7"
+  },
+  {
+    "t": 40.16,
+    "act": "click",
+    "x": 1386,
+    "y": 546,
+    "btn": "left"
+  },
+  {
+    "t": 44.38,
+    "act": "click",
+    "x": 1007,
+    "y": 546,
+    "btn": "left"
+  },
+  {
+    "t": 65.55,
+    "act": "ocr_replace",
+    "ocr_area": [
+      1007,
+      546,
+      1122,
+      580
+    ],
+    "input_pos": [
+      939,
+      558
+    ],
+    "recorded_text": "w7pe"
+  },
+  {
+    "t": 68.59,
+    "act": "click",
+    "x": 844,
+    "y": 684,
+    "btn": "left"
+  },
+  {
+    "t": 69.98,
+    "act": "click",
+    "x": 923,
+    "y": 627,
+    "btn": "left"
+  },
+  {
+    "t": 86.19,
+    "act": "click",
+    "x": 950,
+    "y": 198,
+    "btn": "left"
+  },
+  {
+    "t": 89.67,
+    "act": "compare",
+    "x1": 950,
+    "y1": 198,
+    "x2": 1427,
+    "y2": 347,
+    "src": "./screenshots/record/cmp_1.png",
+    "no": 1
+  },
+  {
+    "t": 89.73,
+    "act": "key",
+    "key": "space"
+  },
+  {
+    "t": 93.14,
+    "act": "click",
+    "x": 1848,
+    "y": 181,
+    "btn": "left"
+  },
+  {
+    "t": 94.7,
+    "act": "click",
+    "x": 1857,
+    "y": 294,
+    "btn": "left"
+  }
+]

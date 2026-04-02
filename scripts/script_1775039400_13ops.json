@@ -1,0 +1,85 @@
+[
+  {
+    "t": 6.71,
+    "act": "click",
+    "x": 1917,
+    "y": 1069,
+    "btn": "left"
+  },
+  {
+    "t": 8.58,
+    "act": "click",
+    "x": 118,
+    "y": 463,
+    "btn": "left"
+  },
+  {
+    "t": 8.74,
+    "act": "click",
+    "x": 118,
+    "y": 463,
+    "btn": "left"
+  },
+  {
+    "t": 10.63,
+    "act": "click",
+    "x": 458,
+    "y": 56,
+    "btn": "left"
+  },
+  {
+    "t": 23.77,
+    "act": "input",
+    "text": "https://172.26.27.230:10443"
+  },
+  {
+    "t": 23.77,
+    "act": "key",
+    "key": "enter"
+  },
+  {
+    "t": 28.31,
+    "act": "click",
+    "x": 948,
+    "y": 448,
+    "btn": "left"
+  },
+  {
+    "t": 33.46,
+    "act": "input",
+    "text": "rayleigh"
+  },
+  {
+    "t": 33.46,
+    "act": "click",
+    "x": 1337,
+    "y": 491,
+    "btn": "left"
+  },
+  {
+    "t": 34.16,
+    "act": "click",
+    "x": 1041,
+    "y": 506,
+    "btn": "left"
+  },
+  {
+    "t": 44.13,
+    "act": "input",
+    "text": "Silvers$R7"
+  },
+  {
+    "t": 44.13,
+    "act": "click",
+    "x": 1172,
+    "y": 613,
+    "btn": "left"
+  },
+  {
+    "t": 52.88,
+    "act": "click",
+    "x": 2947,
+    "y": 338,
+    "btn": "left"
+  }
+]

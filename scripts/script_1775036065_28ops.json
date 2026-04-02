@@ -1,0 +1,179 @@
+[
+  {
+    "t": 4.33,
+    "act": "click",
+    "x": 1917,
+    "y": 1064,
+    "btn": "left"
+  },
+  {
+    "t": 6.53,
+    "act": "click",
+    "x": 121,
+    "y": 440,
+    "btn": "left"
+  },
+  {
+    "t": 6.7,
+    "act": "click",
+    "x": 121,
+    "y": 440,
+    "btn": "left"
+  },
+  {
+    "t": 9.48,
+    "act": "click",
+    "x": 626,
+    "y": 68,
+    "btn": "left"
+  },
+  {
+    "t": 17.35,
+    "act": "input",
+    "text": "https://172.26.27.193"
+  },
+  {
+    "t": 17.35,
+    "act": "key",
+    "key": "enter"
+  },
+  {
+    "t": 20.16,
+    "act": "key",
+    "key": "enter"
+  },
+  {
+    "t": 22.9,
+    "act": "click",
+    "x": 1239,
+    "y": 477,
+    "btn": "left"
+  },
+  {
+    "t": 28.45,
+    "act": "input",
+    "text": "security"
+  },
+  {
+    "t": 28.45,
+    "act": "click",
+    "x": 1751,
+    "y": 538,
+    "btn": "left"
+  },
+  {
+    "t": 30.03,
+    "act": "click",
+    "x": 1565,
+    "y": 500,
+    "btn": "left"
+  },
+  {
+    "t": 40.35,
+    "act": "input",
+    "text": "security"
+  },
+  {
+    "t": 40.35,
+    "act": "key",
+    "key": "enter"
+  },
+  {
+    "t": 41.75,
+    "act": "click",
+    "x": 1780,
+    "y": 550,
+    "btn": "left"
+  },
+  {
+    "t": 42.66,
+    "act": "click",
+    "x": 1569,
+    "y": 577,
+    "btn": "left"
+  },
+  {
+    "t": 49.61,
+    "act": "input",
+    "text": "1qaz@WSX"
+  },
+  {
+    "t": 49.61,
+    "act": "click",
+    "x": 1474,
+    "y": 652,
+    "btn": "left"
+  },
+  {
+    "t": 57.73,
+    "act": "click",
+    "x": 1530,
+    "y": 624,
+    "btn": "left"
+  },
+  {
+    "t": 63.28,
+    "act": "key",
+    "key": "space"
+  },
+  {
+    "t": 64.82,
+    "act": "click",
+    "x": 1379,
+    "y": 644,
+    "btn": "left"
+  },
+  {
+    "t": 64.82,
+    "act": "ocr_auto_input",
+    "ox1": 1530,
+    "oy1": 624,
+    "ox2": 1626,
+    "oy2": 655,
+    "ix": 1379,
+    "iy": 644
+  },
+  {
+    "t": 69.21,
+    "act": "key",
+    "key": "space"
+  },
+  {
+    "t": 70.6,
+    "act": "click",
+    "x": 1379,
+    "y": 644,
+    "btn": "left"
+  },
+  {
+    "t": 72.97,
+    "act": "input",
+    "text": "4"
+  },
+  {
+    "t": 72.97,
+    "act": "click",
+    "x": 1241,
+    "y": 807,
+    "btn": "left"
+  },
+  {
+    "t": 74.14,
+    "act": "click",
+    "x": 1267,
+    "y": 739,
+    "btn": "left"
+  },
+  {
+    "t": 89.44,
+    "act": "key",
+    "key": "space"
+  },
+  {
+    "t": 95.48,
+    "act": "click",
+    "x": 2960,
+    "y": 353,
+    "btn": "left"
+  }
+]

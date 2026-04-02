@@ -1,58 +1,59 @@
-# SnapValid 屏幕区域选择工具
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtGui import QPainter, QPen, QColor
-from PySide6.QtCore import Qt, QPoint, QRect
+from PySide6.QtWidgets import QApplication, QWidget, QRubberBand
+from PySide6.QtCore import Qt, QRect, QPoint
+from PySide6.QtGui import QGuiApplication, QPen, QColor, QPainter
 
-class ScreenSelector(QMainWindow):
+class ScreenSelector(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.showFullScreen()
-        self.start_point = QPoint()
-        self.end_point = QPoint()
-        self.is_selecting = False
-        self.result = None
+        self.setStyleSheet("background:transparent;")
+        
+        self.origin = None
+        self.rubber = QRubberBand(QRubberBand.Rectangle, self)
+        self.selected_rect = None
+
+        screen = QGuiApplication.primaryScreen().geometry()
+        self.setGeometry(screen)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         color = QColor(0, 0, 0, 100)
         painter.fillRect(self.rect(), color)
-        if not self.start_point.isNull() and not self.end_point.isNull():
-            select_rect = QRect(self.start_point, self.end_point)
-            painter.setCompositionMode(QPainter.CompositionMode_Clear)
-            painter.fillRect(select_rect, Qt.transparent)
-            pen = QPen(QColor(0, 255, 0), 2)
-            painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-            painter.setPen(pen)
-            painter.drawRect(select_rect)
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Space:
-            self.result = (self.start_point.x(), self.start_point.y(),
-                         self.end_point.x(), self.end_point.y())
-            self.close()
-        elif event.key() == Qt.Key_Escape:
-            self.result = None
-            self.close()
+        pen = QPen(QColor(255, 0, 0), 2)
+        painter.setPen(pen)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.start_point = event.pos()
-            self.is_selecting = True
+            self.origin = event.globalPos()
+            self.rubber.setGeometry(QRect(self.origin, QPoint()))
+            self.rubber.show()
 
     def mouseMoveEvent(self, event):
-        if self.is_selecting:
-            self.end_point = event.pos()
-            self.update()
+        if self.origin:
+            self.rubber.setGeometry(QRect(self.origin, event.globalPos()).normalized())
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.end_point = event.pos()
-            self.is_selecting = False
-            self.update()
+            self.selected_rect = self.rubber.geometry()
+            self.close()
 
-    def select(self):
-        self.exec()
-        return self.result
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Space:
+            self.selected_rect = self.rubber.geometry()
+            self.close()
+        if event.key() == Qt.Key_Escape:
+            self.selected_rect = None
+            self.close()
+
+def get_area():
+    app = QApplication.instance()
+    selector = ScreenSelector()
+    selector.show()
+    app.exec()
+    rect = selector.selected_rect
+    if rect:
+        return (rect.left(), rect.top(), rect.right(), rect.bottom())
+    return None

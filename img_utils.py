@@ -1,48 +1,42 @@
-# SnapValid 图片工具模块 | 截图 OCR 相似度对比
-import cv2
-import numpy as np
-import ddddocr
-import os
-import time
+# SnapValid 图片工具核心模块
+# 功能：屏幕截图、图片相似度对比、OCR验证码识别
+# 适配：Windows/Linux/Mac
+import pyautogui
 from PIL import Image
 import imagehash
-import pyautogui
+import os
 
-# 初始化OCR
-ocr = ddddocr.DdddOcr()
-
-def save_screenshot(x1, y1, x2, y2, prefix):
-    """保存截图到临时目录"""
-    temp_path = "./temp/"
-    if not os.path.exists(temp_path):
-        os.makedirs(temp_path)
-    img = pyautogui.screenshot(region=(x1, y1, x2-x1, y2-y1))
-    filename = f"{prefix}_{int(time.time())}.png"
-    path = os.path.join(temp_path, filename)
-    img.save(path)
-    return path
-
-def ocr_recognize(img_path):
-    """OCR识别"""
+def capture_screen(x1, y1, x2, y2, save_path):
     try:
-        with open(img_path, "rb") as f:
-            img_bytes = f.read()
-        return ocr.classification(img_bytes)
+        left = min(x1, x2)
+        top = min(y1, y2)
+        w = abs(x2 - x1)
+        h = abs(y2 - y1)
+        if w < 5 or h < 5:
+            return False
+        img = pyautogui.screenshot(region=(left, top, w, h))
+        img.save(save_path)
+        return True
     except Exception as e:
-        return f"识别失败：{str(e)}"
+        print("SnapValid 截图错误:", e)
+        return False
 
-def image_compare(original_path, x1, y1, x2, y2):
-    """图片相似度对比 0-1"""
+def compare_img_similarity(p1, p2):
     try:
-        # 截取当前画面
-        current_img = pyautogui.screenshot(region=(x1, y1, x2-x1, y2-y1))
-        current_img = current_img.resize((128, 128))
-        # 加载基准图
-        original_img = Image.open(original_path).resize((128, 128))
-        # 哈希对比
-        hash0 = imagehash.average_hash(original_img)
-        hash1 = imagehash.average_hash(current_img)
-        similarity = 1 - (hash0 - hash1) / len(hash0.hash) ** 2
-        return round(similarity, 4)
-    except Exception as e:
+        i1 = Image.open(p1).resize((128, 128))
+        i2 = Image.open(p2).resize((128, 128))
+        h1 = imagehash.phash(i1)
+        h2 = imagehash.phash(i2)
+        return round(1 - (abs(h1 - h2) / 64), 2)
+    except:
         return 0.0
+
+def recognize_code(path):
+    try:
+        import ddddocr
+        ocr = ddddocr.DdddOcr(det=False, ocr=True)
+        with open(path, 'rb') as f:
+            return ocr.classification(f.read())
+    except Exception as e:
+        print("SnapValid OCR识别错误:", e)
+        return "OCR_ERROR"
