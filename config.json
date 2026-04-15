@@ -10,5 +10,10 @@
     "验证码识别结果保存文件": "./ocr_result.txt",
     "录制脚本存储路径": "./scripts/",
     "操作日志文件": "./operation_log.txt",
-    "对比结果日志文件": "./compare_result.txt"
+    "对比结果日志文件": "./compare_result.txt",
+
+    "similarity_threshold": 0.9,
+    "action_pause": 0.08,
+    "replay_speed": 1.0,
+    "ocr_language": "eng"
 }
