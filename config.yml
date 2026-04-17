@@ -1,0 +1,11 @@
+hotkey:
+  record: F6
+  play: F7
+  stop: F8
+  ocr: ctrl+alt+i
+  snapshot: ctrl+alt+s
+
+settings:
+  replay_delay: 0.03
+  ocr_confidence: 0.5
+  auto_clean_screenshot: true
