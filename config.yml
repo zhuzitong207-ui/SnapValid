@@ -1,11 +1,25 @@
-hotkey:
-  record: F6
-  play: F7
-  stop: F8
-  ocr: ctrl+alt+i
-  snapshot: ctrl+alt+s
+# 基础配置
+app:
+  name: "SnapValid"
+  log_level: "INFO"  # DEBUG/INFO/WARN/ERROR
+  screenshot_quality: 95  # 截图质量（0-100）
 
-settings:
-  replay_delay: 0.03
-  ocr_confidence: 0.5
-  auto_clean_screenshot: true
+# 快捷键配置（支持自定义）
+hotkeys:
+  record_start: "F9"
+  play_start: "F10"
+  stop: "F11"
+  insert_ocr: "ctrl+alt+i"
+  insert_compare: "ctrl+alt+s"
+  reset: "ctrl+alt+r"
+
+# OCR配置
+ocr:
+  lang: "chi_sim+eng"  # 识别语言（中文+英文）
+  confidence: 0.7      # 识别置信度阈值
+  timeout: 10          # 识别超时时间（秒）
+
+# 截图校验配置
+compare:
+  threshold: 0.95      # 相似度阈值（0-1）
+  timeout: 5           # 校验超时时间（秒）
