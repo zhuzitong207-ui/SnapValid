@@ -1,0 +1,20 @@
+[project]
+name = "SnapValid"
+version = "1.0.0"
+description = "键盘鼠标自动化 + OCR验证码识别 + 截图相似度校验工具"
+authors = [{"name": "Dev", "email": "dev@example.com"}]
+dependencies = [
+  "pywin32>=306",
+  "opencv-python>=4.8.0",
+  "pytesseract>=0.3.10",
+  "Pillow>=10.0.1",
+  "pyyaml>=6.0.1",
+  "loguru>=0.7.2",
+  "numpy>=1.26.0"
+]
+
+[tool.pyinstaller]
+script = "main.py"
+onefile = true
+windowed = true
+add-data = ["./assets;assets", "./config.yml;."]

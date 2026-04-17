@@ -1,208 +1,159 @@
 import time
-import pyautogui
-import keyboard
-import threading
+import json
+from dataclasses import dataclass, asdict
+from pathlib import Path
+from typing import List, Dict, Any
 import win32api
-from utils.logger import info, error
-from utils.path import SCREENSHOT_DIR
-from core.selector import select_region
-from core.ocr import OCR
-from core.compare import image_similarity
+import win32con
+import win32gui
+from utils.log_utils import logger
+from utils.config_utils import get_config
 
-pyautogui.FAILSAFE = False
-pyautogui.PAUSE = 0.05
+@dataclass
+class RecordStep:
+    """录制步骤数据结构"""
+    type: str  # mouse_move/mouse_click/key_press/ocr/screenshot_check
+    timestamp: float
+    x: int = 0
+    y: int = 0
+    button: str = ""  # left/right/middle
+    key: str = ""     # 按键名称
+    params: Dict[str, Any] = None  # OCR/截图校验的额外参数
 
 class Recorder:
     def __init__(self):
-        self.actions = []
-        self.recording = False
-        self.playing = False
-        self.stop_event = threading.Event()
-        self.ocr = OCR()
-        self.last_time = time.time()
-        self.full_input = ""
-
-        self.click_times = []
-        self.DOUBLE_CLICK_MAX = 0.5
-
-    def stop(self):
-        self.recording = False
-        self.playing = False
-        self.stop_event.set()
-        info("✅ 已全局强制停止")
-        time.sleep(0.3)
-
-    def start_record(self):
-        if self.recording:
+        self.config = get_config()
+        self.is_recording = False
+        self.record_steps: List[RecordStep] = []
+        self.start_time = 0.0
+        self.script_save_path = Path(self.config["basic"]["script_save_path"])
+        self.script_save_path.mkdir(exist_ok=True)
+    
+    def start(self):
+        """开始录制"""
+        if self.is_recording:
+            logger.warning("已在录制中")
             return
-        self.stop_event.clear()
-        self.actions.clear()
-        self.full_input = ""
-        self.recording = True
-        self.click_times = []
-        self.last_time = time.time()
-        info("【录制】开始（支持单击/双击）")
-        threading.Thread(target=self._record_loop, daemon=True).start()
-
-    def flush_input(self):
-        if self.full_input.strip():
-            info(f"【录制】输入: [{self.full_input}]")
-        self.full_input = ""
-
-    def _record_loop(self):
-        last_pos = None
-        left_pressed = False
-
-        while not self.stop_event.is_set() and self.recording:
-            time.sleep(0.02)
-            x, y = pyautogui.position()
-            now = time.time()
-
-            state = win32api.GetKeyState(0x01)
-            if state < 0:
-                if not left_pressed:
-                    left_pressed = True
-                    self.click_times.append(now)
-                    if len(self.click_times) >= 2:
-                        t1 = self.click_times[-2]
-                        t2 = self.click_times[-1]
-                        if t2 - t1 < self.DOUBLE_CLICK_MAX:
-                            self.flush_input()
-                            dt = max(round(now - self.last_time, 3), 0.1)
-                            self.last_time = now
-                            self.actions.append(("double_click", x, y, dt))
-                            info(f"【录制】双击: ({x},{y})")
-                            self.click_times.clear()
-            else:
-                left_pressed = False
-
-            if len(self.click_times) == 1 and now - self.click_times[0] > self.DOUBLE_CLICK_MAX:
-                self.flush_input()
-                dt = max(round(now - self.last_time, 3), 0.1)
-                self.last_time = now
-                self.actions.append(("click", x, y, dt))
-                info(f"【录制】单击: ({x},{y})")
-                self.click_times.clear()
-
-            if last_pos != (x, y) and now - self.last_time >= 0.1:
-                dt = max(round(now - self.last_time, 3), 0.1)
-                self.actions.append(("move", x, y, dt))
-                self.last_time = now
-                last_pos = (x, y)
-
-            keys = keyboard.read_events()
-            for e in keys:
-                if e.event_type == "down":
-                    k = e.name
-                    if k in ["shift", "ctrl", "alt", "esc", "tab"] or k.startswith("f"):
-                        continue
-                    if k == "enter":
-                        self.flush_input()
-                        dt = max(round(time.time() - self.last_time, 3), 0.1)
-                        self.last_time = time.time()
-                        self.actions.append(("key", "enter", dt))
-                        info("【录制】按键: [回车]")
-                    elif k == "backspace":
-                        self.full_input = self.full_input[:-1]
-                    elif k == "space":
-                        self.full_input += " "
-                    elif len(k) == 1:
-                        self.full_input += k
-
-        self.flush_input()
-        self.recording = False
-        info("【录制】已停止")
-
-    def start_play(self):
-        if self.playing:
+        
+        self.is_recording = True
+        self.start_time = time.time()
+        self.record_steps.clear()
+        logger.info("开始录制（按F11停止）")
+    
+    def stop(self) -> str:
+        """停止录制并保存脚本"""
+        if not self.is_recording:
+            logger.warning("未在录制中")
+            return ""
+        
+        self.is_recording = False
+        script_filename = f"script_{int(time.time())}_{len(self.record_steps)}ops.json"
+        script_path = self.script_save_path / script_filename
+        
+        # 保存录制步骤
+        with open(script_path, "w", encoding="utf-8") as f:
+            json.dump(
+                [asdict(step) for step in self.record_steps],
+                f,
+                ensure_ascii=False,
+                indent=2
+            )
+        
+        logger.info(f"录制停止，脚本已保存: {script_path}")
+        return str(script_path)
+    
+    def record_mouse_move(self, x: int, y: int):
+        """录制鼠标移动"""
+        if not self.is_recording or not self.config["recorder"]["record_mouse_move"]:
             return
-        self.stop_event.clear()
-        self.playing = True
-        threading.Thread(target=self._play_loop, daemon=True).start()
-
-    def _play_loop(self):
-        if not self.actions:
-            info("【回放】无记录")
-            self.playing = False
+        
+        step = RecordStep(
+            type="mouse_move",
+            timestamp=time.time() - self.start_time,
+            x=x,
+            y=y
+        )
+        self.record_steps.append(step)
+    
+    def record_mouse_click(self, x: int, y: int, button: str):
+        """录制鼠标点击"""
+        if not self.is_recording:
             return
-
-        info("【回放】开始（F8随时停止）")
-        for act in self.actions:
-            if self.stop_event.is_set() or not self.playing:
-                info("【回放】已强制停止！")
-                self.playing = False
-                return
-
-            typ = act[0]
-            dt = act[-1]
-            time.sleep(dt)
-
-            try:
-                if typ == "move":
-                    pyautogui.moveTo(act[1], act[2], duration=0.05)
-                elif typ == "click":
-                    x, y = act[1], act[2]
-                    pyautogui.moveTo(x, y, duration=0.1)
-                    pyautogui.click()
-                    info(f"【回放】单击 ({x},{y})")
-                elif typ == "double_click":
-                    x, y = act[1], act[2]
-                    pyautogui.moveTo(x, y, duration=0.15)
-                    time.sleep(0.1)
-                    pyautogui.doubleClick(interval=0.1)
-                    info(f"【回放】双击 ({x},{y}) → 打开浏览器")
-                elif typ == "key":
-                    pyautogui.press(act[1])
-                    info(f"【回放】按键 [{act[1]}]")
-            except Exception:
-                continue
-
-        info("【回放】执行完成 ✅")
-        self.playing = False
-
-    # ==========================
-    # 🔥 OCR 和 截图对比 修复
-    # ==========================
-    def do_ocr(self):
+        
+        step = RecordStep(
+            type="mouse_click",
+            timestamp=time.time() - self.start_time,
+            x=x,
+            y=y,
+            button=button
+        )
+        self.record_steps.append(step)
+    
+    def record_key_press(self, key: str):
+        """录制按键"""
+        if not self.is_recording:
+            return
+        
+        step = RecordStep(
+            type="key_press",
+            timestamp=time.time() - self.start_time,
+            key=key
+        )
+        self.record_steps.append(step)
+    
+    def insert_ocr_step(self, x1: int, y1: int, x2: int, y2: int):
+        """插入OCR识别步骤"""
+        if not self.is_recording:
+            logger.warning("未在录制中，无法插入OCR步骤")
+            return
+        
+        step = RecordStep(
+            type="ocr",
+            timestamp=time.time() - self.start_time,
+            params={
+                "roi": [x1, y1, x2, y2],  # 识别区域
+                "confidence_threshold": self.config["ocr"]["confidence_threshold"]
+            }
+        )
+        self.record_steps.append(step)
+        logger.info(f"已插入OCR识别步骤，区域: ({x1},{y1})-({x2},{y2})")
+    
+    def insert_screenshot_check_step(self, x1: int, y1: int, x2: int, y2: int):
+        """插入截图校验步骤"""
+        if not self.is_recording:
+            logger.warning("未在录制中，无法插入截图校验步骤")
+            return
+        
+        # 保存基准截图
+        screenshot_path = Path(self.config["basic"]["screenshot_save_path"])
+        screenshot_path.mkdir(exist_ok=True)
+        img_filename = f"check_{int(time.time())}.png"
+        img_path = screenshot_path / img_filename
+        
+        # 截取指定区域并保存
+        self._capture_roi(x1, y1, x2, y2, img_path)
+        
+        step = RecordStep(
+            type="screenshot_check",
+            timestamp=time.time() - self.start_time,
+            params={
+                "roi": [x1, y1, x2, y2],
+                "reference_img": str(img_path),
+                "similarity_threshold": self.config["screenshot"]["similarity_threshold"],
+                "timeout": self.config["screenshot"]["timeout"],
+                "check_interval": self.config["screenshot"]["check_interval"]
+            }
+        )
+        self.record_steps.append(step)
+        logger.info(f"已插入截图校验步骤，基准截图: {img_path}")
+    
+    @staticmethod
+    def _capture_roi(x1: int, y1: int, x2: int, y2: int, save_path: Path):
+        """截取指定区域并保存"""
+        from PIL import ImageGrab
         try:
-            info("【OCR】请框选验证码区域")
-            time.sleep(0.2)
-            x1, y1, x2, y2 = select_region()
-            w, h = x2-x1, y2-y1
-            if w <= 0 or h <= 0:
-                error("【OCR】无效区域")
-                return
-            p = f"{SCREENSHOT_DIR}/ocr.png"
-            pyautogui.screenshot(p, region=(x1,y1,w,h))
-            res = self.ocr.recognize(p)
-            info(f"【OCR】识别结果: {res}")
-            pyautogui.typewrite(str(res).strip())
-            info("【OCR】已自动输入")
+            img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+            img.save(save_path)
         except Exception as e:
-            error(f"【OCR】失败: {str(e)}")
-
-    def do_compare(self):
-        try:
-            info("【截图】请框选校验区域")
-            time.sleep(0.2)
-            x1, y1, x2, y2 = select_region()
-            w, h = x2-x1, y2-y1
-            if w <= 0 or h <= 0:
-                error("【截图】无效区域")
-                return
-            base = f"{SCREENSHOT_DIR}/base.png"
-            curr = f"{SCREENSHOT_DIR}/curr.png"
-            import os
-            if self.recording:
-                pyautogui.screenshot(base, region=(x1,y1,w,h))
-                info("【截图】基准图已保存")
-                return
-            if os.path.exists(base):
-                pyautogui.screenshot(curr, region=(x1,y1,w,h))
-                sim = image_similarity(base, curr)
-                info(f"【截图】相似度: {max(sim,0):.2%}")
-            else:
-                pyautogui.screenshot(base, region=(x1,y1,w,h))
-                info("【截图】基准图已保存")
-        except Exception as e:
-            error(f"【截图】失败: {str(e)}")
+            logger.error(f"截取区域失败: {e}")
+            raise
